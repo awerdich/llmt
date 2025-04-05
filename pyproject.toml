@@ -7,7 +7,14 @@ authors = [
     { name = "andreas", email = "andreas_werdich@hms.harvard.edu" }
 ]
 requires-python = ">=3.12.3"
-dependencies = []
+dependencies = [
+    "nodejs>=0.1.1",
+    "numpy>=2.2.4",
+    "openai>=1.70.0",
+    "pandas>=2.2.3",
+    "pyarrow>=19.0.1",
+    "pydantic>=2.11.2",
+]
 
 [project.scripts]
 llmt = "llmt:main"
@@ -15,3 +22,11 @@ llmt = "llmt:main"
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = [
+    "ipywidgets>=8.1.5",
+    "jupyterlab>=4.4.0",
+    "matplotlib>=3.10.1",
+    "seaborn>=0.13.2",
+]
