@@ -14,12 +14,14 @@ ENV \
     PIP_DISABLE_PIP_VERSION_CHECK=on \
     PIP_DEFAULT_TIMEOUT=100 \
     PIP_SRC=/src \
-    NO_COLOR=true
-# Enable bytecode compilation
-ENV UV_COMPILE_BYTECODE=1
-# Copy from the cache instead of linking since it's a mounted volume
-ENV UV_LINK_MODE=copy
-
+    NO_COLOR=true \
+    UV_COMPILE_BYTECODE=1 \
+    UV_SYSTEM_PYTHON=true \
+    UV_PYTHON_DOWNLOADS=never \
+    UV_PYTHON_PREFERENCE=only-system \
+    UV_LINK_MODE=copy \
+    UV_PROJECT_ENVIRONMENT=/usr/local
+    
 # Ports for jupyter and tensorboard
 EXPOSE 8888
 EXPOSE 6006
@@ -27,23 +29,19 @@ EXPOSE 6006
 RUN mkdir -p /app
 WORKDIR /app
 
+# Pip upgrade
+RUN pip install --upgrade pip
+
+# Copy the project files to create the environment
+COPY uv.lock pyproject.toml README.md .
+COPY src/llmt/__init__.py src/llmt/__init__.py
+
 # Install the project's dependencies using the lockfile and settings
 RUN --mount=type=cache,target=/root/.cache/uv \
+    --mount=type=bind,source=.git,target=.git \
     --mount=type=bind,source=uv.lock,target=uv.lock \
     --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
-    uv sync --frozen --no-install-project
-
-# Then, add the rest of the project source code and install it
-# Installing separately from its dependencies allows optimal layer caching
-ADD . /app
-RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync --frozen
-
-# Place executables in the environment at the front of the path
-ENV PATH="/app/.venv/bin:$PATH"
-
-# Reset the entrypoint, don't invoke `uv`
-ENTRYPOINT []
+     uv sync --frozen
 
 # Copy bash scripts and set executable flags
 RUN mkdir -p /run_scripts
