@@ -8,6 +8,7 @@ authors = [
 ]
 requires-python = ">=3.12.3"
 dependencies = [
+    "datasets>=3.5.0",
     "gnews>=0.4.1",
     "nodejs>=0.1.1",
     "numpy>=2.2.4",
