@@ -37,7 +37,7 @@ services:
     volumes:
       - .:/app
       - app_data:/app/data
-      - /home/andreas/data:/app/homedata
+      - /home/andreas/data:/app/home_data
     develop:
       # Create a `watch` configuration to update the app
       # https://docs.docker.com/compose/file-watch/#compose-watch-versus-bind-mounts
