@@ -12,10 +12,10 @@ def process_prompt(prompt: str):
     return output
 
 class MentalHealth(BaseModel):
-    mental_health_care: bool = Field(description='A business that provides mental health or behavioral healthcare '
-                                                 'services for human patients.')
-    mental_health_care_score: float = Field(description='Confidence that the business provides mental '
-                                                        'health or behavioral healthcare services (0-1).')
+    predict_mh: bool = Field(description='A business that provides mental health or behavioral healthcare '
+                                         'services for human patients.')
+    predict_mh_score: float = Field(description='Confidence that the business provides mental '
+                                                'health or behavioral healthcare services (0-1).')
 
 class Prompt:
     def __init__(self, prompt_dir: str = None, prompt_file_ext: str = '.md'):
