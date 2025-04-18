@@ -33,8 +33,8 @@ class OpenAI:
     def send_messages(self,
                       messages: list,
                       model: str,
+                      response_format,
                       temperature: float = 0.7,
-                      response_format = None,
                       client = None):
         if client is None:
             client = self.create_client()
