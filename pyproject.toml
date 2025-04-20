@@ -10,6 +10,7 @@ requires-python = ">=3.12.3"
 dependencies = [
     "datasets>=3.5.0",
     "gnews>=0.4.1",
+    "markdown>=3.8",
     "nodejs>=0.1.1",
     "numpy>=2.2.4",
     "ollama>=0.4.7",
@@ -19,6 +20,7 @@ dependencies = [
     "pyarrow>=19.0.1",
     "pydantic>=2.11.2",
     "python-dotenv>=1.1.0",
+    "scikit-learn>=1.6.1",
 ]
 
 [tool.uv]

@@ -1,4 +1,22 @@
-services: 
+services:
+  ollama:
+    image: docker.io/ollama/ollama:latest
+    container_name: ollama
+    restart: always
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    environment:
+      - OLLAMA_KEEP_ALIVE=24h
+      - OLLAMA_HOST=0.0.0.0
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama      
   app:
     image: llmtools:latest
     container_name: llmtools
@@ -8,9 +26,12 @@ services:
       dockerfile: Dockerfile
     ipc: host
     environment:
+    - NVIDIA_VISIBLE_DEVICES=all
     - HOME=/app
     env_file:
       - ./.env
+    depends_on:
+      - ollama
     ports:
       - "8888:8888"
     volumes:
@@ -36,4 +57,6 @@ services:
 
 volumes:
   app_data:
+    external: false
+  ollama_data:
     external: false

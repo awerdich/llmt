@@ -1,0 +1,4 @@
+curl "https://azure-ai-dev.hms.edu/openai/deployments/gpt-4o/chat/completions?api-version=2024-10-21" \
+-H "Content-Type: application/json" \
+-H "api-key: e663df78a98c4a2ca03a60c3c74e61e6" \
+-d '{"messages": [{"role": "user", "content": "Hi, my name is Andreas."}]}'
