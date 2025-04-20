@@ -1,0 +1,62 @@
+services:
+  ollama:
+    image: docker.io/ollama/ollama:latest
+    container_name: ollama
+    restart: always
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    environment:
+      - OLLAMA_KEEP_ALIVE=24h
+      - OLLAMA_HOST=0.0.0.0
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama      
+  app:
+    image: llmtools:latest
+    container_name: llmtools
+    build: 
+      context: .
+      network: host
+      dockerfile: Dockerfile
+    ipc: host
+    environment:
+    - NVIDIA_VISIBLE_DEVICES=all
+    - HOME=/app
+    env_file:
+      - ./.env
+    depends_on:
+      - ollama
+    ports:
+      - "8888:8888"
+    volumes:
+      - .:/app
+      - app_data:/app/data
+      - /home/andreas/data:/app/home_data
+    develop:
+      # Create a `watch` configuration to update the app
+      # https://docs.docker.com/compose/file-watch/#compose-watch-versus-bind-mounts
+      watch:
+        # Sync the working directory with the `/app` directory in the container
+        - action: sync
+          path: .
+          target: /app
+          # Exclude the project virtual environment — it could be for a
+          # different platform in the container
+          ignore:
+            - .venv/
+
+        # Rebuild the image if dependencies change by checking uv.lock
+        - action: rebuild
+          path: ./uv.lock
+
+volumes:
+  app_data:
+    external: false
+  ollama_data:
+    external: false
