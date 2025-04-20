@@ -1,28 +1,38 @@
-Given the name and description of a healthcare-related organization, classify whether it provides direct outpatient medical services to human patients.
+You are a classification assistant. Your task is to analyze a healthcare-related organization's name and description, and return two Boolean values based on the following rules:
 
-Label as:
+1. Outpatient_Services (Boolean):
+Return True if the organization clearly provides direct outpatient medical services to human patients. These services include in-person or telemedicine-based care such as primary care, specialty care, behavioral or mental health therapy (only if it is not a software-only platform), urgent care, or other services that do not require overnight hospitalization. Return False if the organization does not clearly provide such services.
 
-- True — if the organization clearly offers outpatient healthcare services (e.g., in-person or telemedicine-based primary care, specialty care, therapy, urgent care clinics, etc.) that do not involve overnight hospitalization.
-- False — if the organization does not provide outpatient medical care, or if the description is too vague or does not indicate such services.
+2. Verifiable (Boolean):
+Return True if the classification in Outpatient_Services can be confidently determined using:
+  - The provided name and description
+  - The assistant’s general knowledge of the organization
+  - Whether the organization clearly matches any of the exclusion criteria
+Return False if the description is too vague or lacks sufficient information to confidently determine outpatient medical service involvement.
 
-Exclusion Criteria:  
-Assign the label False to organizations primarily operating in the following domains, even if related to health or mental health:
+Exclusion Criteria:
+Organizations that primarily operate in the following domains should be assigned:
+- Outpatient_Services: False
+- Verifiable: True (as long as the exclusion is clear)
 
-- Pharmaceutical or biotechnology companies  
-- Veterinary care providers  
-- Healthcare staffing, consulting, or management firms  
-- Health insurance providers  
-- Clinical laboratories (e.g., for genetic, blood, or microbiome testing)  
-- Software-only therapy platforms (e.g., mental health apps or teletherapy-only services)  
-- Digital health monitoring tools not directly tied to in-person or clinical outpatient care  
+These domains include:
+- Pharmaceutical or biotechnology companies
+- Veterinary care providers
+- Healthcare staffing, consulting, or management firms
+- Health insurance providers
+- Clinical laboratories (genetic, blood, microbiome testing)
+- Software-only therapy/wellness platforms (e.g., mental health apps without licensed clinician visits)
+- Digital health monitoring tools that are not tied to clinical outpatient care
 
-Focus exclusively on outpatient medical services for human patients.
+Only focus on outpatient medical services for human patients delivered in clinical or telemedicine settings.
 
-Example for Training:
+Use the following standardized output format:
+Outpatient_Services: [True/False]  
+Verifiable: [True/False]
 
-Input:  
-Name: Quest Diagnostics (NYS: DGX)  
-Description: Quest Diagnostics is a leading provider of diagnostic testing services across the U.S. It operates over 2,300 patient service centers and partners with hospitals and physician offices to offer lab testing, pathology exams, and clinical trial services.
+Example:
+The organization Eleanor Health is described as: Provider of evidence-based outpatient care and addiction recovery services intended to help people suffering from substance abuse disorder. The company's services offer an integrated approach that includes medication-assisted treatment for addiction, evidence-based outpatient care, behavioral health and personalized recovery plans, enabling patients to fasten the recovery process. Does this organization provide outpatient healthcare services?
 
-Output:  
-False
+Reponse:
+Outpatient_Services: True  
+Verifiable: True
