@@ -1,3 +1,6 @@
+"""
+Prompt processing and pydantic model definition
+"""
 import os
 import glob
 import logging
@@ -16,17 +19,18 @@ def process_prompt(prompt: str):
     return output
 
 class MentalHealth(BaseModel):
-    pred_mh: bool = Field(description='A business that provides '
+    pred_mh: bool = Field(description='Mental_Health_Services: A business that provides '
                                       'mental health or behavioral healthcare services for human patients.')
     pred_mh_score: float = Field(description='Confidence that the business provides '
                                              'mental health or behavioral healthcare services (0-1).')
 class InpatientServices(BaseModel):
-    pred_ip: bool = Field(description='An organization that provides inpatient healthcare services.')
+    pred_ip: bool = Field(description='Inpatient_Services: An organization that provides inpatient healthcare services.')
     pred_ip_score: float = Field(description='Confidence that the organization provides inpatient healthcare services (0-1).')
 
 class OutpatientServices(BaseModel):
-    pred_op: bool = Field(description='An organization that provides outpatient healthcare services.')
+    pred_op: bool = Field(description='Outpatient_Services: An organization that provides outpatient healthcare services.')
     pred_op_score: float = Field(description='Confidence that the organization provides outpatient healthcare services (0-1).')
+    verified_op: bool = Field(description='Verifiable: The classification for outpatient healthcare services is verifiable.')
 
 class Prompt:
     def __init__(self, prompt_dir: str = None, prompt_file_ext: str = '.md'):
