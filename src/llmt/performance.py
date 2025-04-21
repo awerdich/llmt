@@ -27,6 +27,8 @@ class Performance:
     def binary_performance(self, true_col: str, pred_col: str) -> dict:
         df = self.data[[true_col, pred_col]].\
             dropna(axis=0, how='any')
+        # Set the types for the predictions
+        df = df.astype({true_col: int, pred_col: int})
         df = df.loc[df[true_col].isin([0, 1])]
         y_true = df[true_col].tolist()
         y_red = df[pred_col].tolist()
