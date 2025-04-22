@@ -89,5 +89,5 @@ for t, temperature in enumerate(temperature_list):
             company_df = company_df.assign(**response_op)
             results_run_df_list.append(company_df)
         results_run_df = pd.concat(results_run_df_list, axis=0, ignore_index=True)
-        results_run_df = results_run_df.assign(temperature=temperature)
+        results_run_df = results_run_df.assign(temperature=temperature, run=run+1)
         results_run_df.to_parquet(os.path.join(output_dir, results_run_file_name))
