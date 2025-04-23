@@ -1,54 +1,12 @@
-<!-- PROJECT LOGO -->
-<br />
-<div align="left">
-  <a href="https://github.com/awerdich/llmt">
-    <img src="images/CCBPictorialLogo.jpeg" alt="Logo" width="160" height="80">
-  </a>
+[![Pyscaffold](https://img.shields.io/badge/-PyScaffold-005CA0?logo=pyscaffold)](
+https://pyscaffold.org/)
+[![Python 3.12](
+https://img.shields.io/badge/python-3.12-blue.svg)](
+https://www.python.org/downloads/release/python-31012/)
 
-<h3 align="center">Classification of mental health facilities using Pitchbook Data</h3>
-
-  <p align="center">
-    project_description
-    <br />
-    <a href="https://github.com/awerdich/llmt"><strong>Explore the docs »</strong></a>
-    <br />
-    <br />
-    <a href="https://github.com/awerdich/llmt">View Demo</a>
-    &middot;
-    <a href="https://github.com/awerdich/llmt/issues/new?labels=bug&template=bug-report---.md">Report Bug</a>
-    &middot;
-    <a href="https://github.com/awerdich/llmt/issues/new?labels=enhancement&template=feature-request---.md">Request Feature</a>
-  </p>
-</div>
-
-
-
-<!-- TABLE OF CONTENTS -->
-<details>
-  <summary>Table of Contents</summary>
-  <ol>
-    <li>
-      <a href="#about-the-project">About The Project</a>
-      <ul>
-        <li><a href="#built-with">Built With</a></li>
-      </ul>
-    </li>
-    <li>
-      <a href="#getting-started">Getting Started</a>
-      <ul>
-        <li><a href="#prerequisites">Prerequisites</a></li>
-        <li><a href="#installation">Installation</a></li>
-      </ul>
-    </li>
-    <li><a href="#usage">Usage</a></li>
-    <li><a href="#roadmap">Roadmap</a></li>
-    <li><a href="#contributing">Contributing</a></li>
-    <li><a href="#license">License</a></li>
-    <li><a href="#contact">Contact</a></li>
-    <li><a href="#acknowledgments">Acknowledgments</a></li>
-  </ol>
-</details>
-
+<p float="left">
+    <img style="vertical-align: top" src="./images/ChatGPTImage.png" width="40%" />
+</p>
 
 
 <!-- ABOUT THE PROJECT -->
@@ -60,4 +18,26 @@
 
 *LLM-based classification:* The goal of this project is to evaluate the extent to which a large language model can be used to classify these transactions.  The PitchBook database contains a paragraph of text describing the transactions.  We plan to create a prompting workflow that will attempt to automatically recognize, based on these paragraphs, which deals relate to mental health facilities.
 
+## Install locally with Docker
+The most convenient way to get started with this repository is to run the 
+code examples in a [Docker](https://docs.docker.com/) container.
+
+The Dockerfile and docker-compose.yml files included in the repository can be 
+used to create a Docker image and run a Docker container, which together provide a 
+reproducible Python development.
+
+Here's a step-by-step guide on how to use this setup:
+
+1. Install [Docker](https://docs.docker.com/) on your machine.
+2. Clone the GitHub project repository to download the contents of the repository.
+3. Navigate to the repository's directory.
+4. Build the Docker image. Use the command `docker compose build` to build a Docker image from the 
+Dockerfile in the current directory. This image will include all the specifications from the Dockerfile.
+5. Run `docker compose up` to start the Docker container based on the configurations 
+in the docker-compose.yml file.
+6. Access Jupyter Lab: Click on the link that starts with `localhost:8888` provided by the 
+output of the last command.
+
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
