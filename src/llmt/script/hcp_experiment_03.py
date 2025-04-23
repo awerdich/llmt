@@ -11,7 +11,7 @@ from llmt.openai import OpenAIModel
 #%% Directories and settings
 n_runs = 10 # Repeat the experiment
 temperature_list = [0.0, 0.7]
-experiment_name = 'hcp_experiment_02'
+experiment_name = 'hcp_experiment_03'
 # data_root = os.path.join(os.environ.get('HOME'), 'data')
 data_root = os.path.join(os.environ.get('HOME'), 'home_data')
 data_dir = os.path.join(data_root, 'hcp')
@@ -73,7 +73,7 @@ for t, temperature in enumerate(temperature_list):
         print(f'Execution time: {execution_time_min:.2f} min')
         print(f'Run {run+1}/{n_runs}: temperature = {temperature}')
         logger.info(f'Run {run+1}/{n_runs}')
-        results_run_file_name = f'{experiment_name}_{str(run+1).zfill(2)}_t{t+1}.parquet'
+        results_run_file_name = f'250423_mh3ip1op1_{str(run+1).zfill(2)}_t{t+1}.parquet'
         results_run_df_list = []
         for c, company_id in enumerate(company_id_list):
             if (c+1) % 20 == 0:
@@ -81,7 +81,7 @@ for t, temperature in enumerate(temperature_list):
             company_df = df.loc[df['id'] == company_id]
             name = company_df['name'].values[0]
             description = company_df['description'].values[0]
-            response_mh = model.predict_mh(name=name, description=description, version=2, temperature=temperature)
+            response_mh = model.predict_mh(name=name, description=description, version=3, temperature=temperature)
             response_ip = model.predict_ip(name=name, description=description, version=1, temperature=temperature)
             response_op = model.predict_op(name=name, description=description, version=1, temperature=temperature)
             company_df = company_df.assign(**response_mh)
