@@ -30,6 +30,7 @@ class Performance:
         # Set the types for the predictions
         df = df.astype({true_col: int, pred_col: int})
         df = df.loc[df[true_col].isin([0, 1])]
+        df = df.loc[df[pred_col].isin([0, 1])]
         y_true = df[true_col].tolist()
         y_red = df[pred_col].tolist()
         performance_dict = binary_performance(y_true=y_true, y_pred=y_red)
