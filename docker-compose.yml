@@ -1,4 +1,24 @@
 services: 
+  # The ollama container from the original image
+  ollama:
+    image: docker.io/ollama/ollama:latest
+    container_name: ollama
+    restart: always
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    environment:
+      - OLLAMA_KEEP_ALIVE=24h
+      - OLLAMA_HOST=0.0.0.0
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama   
+# The development container
   app:
     image: llmtools:latest
     container_name: llmtools
@@ -36,4 +56,6 @@ services:
 
 volumes:
   app_data:
+    external: false
+  ollama_data:
     external: false

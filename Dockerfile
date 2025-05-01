@@ -24,7 +24,6 @@ ENV \
     
 # Ports for jupyter and tensorboard
 EXPOSE 8888
-EXPOSE 6006
 
 RUN mkdir -p /app
 WORKDIR /app
