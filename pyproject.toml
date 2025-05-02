@@ -1,7 +1,7 @@
 [project]
 name = "llmt"
 version = "0.0.2"
-description = "Add your description here"
+description = "Tools to get started with LLMs and Ollama"
 readme = "README.md"
 authors = [
     { name = "andreas", email = "andreas_werdich@hms.harvard.edu" }

@@ -18,6 +18,8 @@ services:
       - "11434:11434"
     volumes:
       - ollama_data:/root/.ollama   
+    networks:
+      - ollama_network
 # The development container
   app:
     image: llmtools:latest
@@ -37,6 +39,8 @@ services:
       - .:/app
       - app_data:/app/data
       - /home/andreas/data:/app/home_data
+    networks:
+      - ollama_network
     develop:
       # Create a `watch` configuration to update the app
       # https://docs.docker.com/compose/file-watch/#compose-watch-versus-bind-mounts
@@ -59,3 +63,6 @@ volumes:
     external: false
   ollama_data:
     external: false
+networks:
+  ollama_network:
+    driver: bridge

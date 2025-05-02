@@ -1,9 +1,7 @@
-# Use a Python image with uv pre-installed
-# FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim
-# Use Python image
 FROM python:3.12 AS base
 
-COPY --from=ghcr.io/astral-sh/uv:0.6.12 /uv /uvx /bin/
+# Install UV
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
 ENV \
     PYTHONDONTWRITEBYTECODE=1 \
@@ -28,12 +26,9 @@ EXPOSE 8888
 RUN mkdir -p /app
 WORKDIR /app
 
-# Pip upgrade
-RUN pip install --upgrade pip
-
 # Copy the project files to create the environment
 COPY uv.lock pyproject.toml README.md .
-COPY src/llmt/__init__.py src/llmt/__init__.py
+# COPY src/llmt/__init__.py src/llmt/__init__.py
 
 # Install the project's dependencies using the lockfile and settings
 RUN --mount=type=cache,target=/root/.cache/uv \
