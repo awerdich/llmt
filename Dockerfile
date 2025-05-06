@@ -27,8 +27,8 @@ RUN mkdir -p /app
 WORKDIR /app
 
 # Copy the project files to create the environment
-COPY uv.lock pyproject.toml README.md .
-# COPY src/llmt/__init__.py src/llmt/__init__.py
+COPY README.md .
+COPY src/llmt/__init__.py src/llmt/__init__.py
 
 # Install the project's dependencies using the lockfile and settings
 RUN --mount=type=cache,target=/root/.cache/uv \
