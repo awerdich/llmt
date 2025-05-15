@@ -86,11 +86,11 @@ class OpenAIModel(OpenAI):
                         Does this organization provide {variable} healthcare services?
                         """)
         messages = create_messages(system_prompt=system_prompt, user_prompt=user_prompt)
-        output = OpenAI().send_messages(messages=messages,
-                                        model=self.model,
-                                        temperature=temperature,
-                                        response_format=MentalHealth,
-                                        client=self.client)
+        output = self.send_messages(messages=messages,
+                                    model=self.model,
+                                    temperature=temperature,
+                                    response_format=MentalHealth,
+                                    client=self.client)
         output.update({pred_col: 1 if output.get(pred_col) == True else 0})
         output = {pred_col: output.get(pred_col)}
         return output

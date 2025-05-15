@@ -15,6 +15,8 @@ def process_prompt(prompt: str):
     html = markdown.markdown(dedent(prompt))
     soup = BeautifulSoup(html, features='html.parser')
     output = soup.get_text()
+    # Let's remove underscores because sometimes we use them in variables
+    output = output.replace('_', ' ')
     return output
 
 class Prompt:
