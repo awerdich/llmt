@@ -5,12 +5,12 @@ from tqdm import tqdm
 from ollama import Client
 from llmt.llmtools import process_prompt, Prompt
 
-# OpenAI functions
-from llmt.openai import MentalHealth, InpatientServices, OutpatientServices, create_messages
+# Pydantic models
+from llmt.llmtools import MentalHealth, InpatientServices, OutpatientServices, create_messages
 
 logger = logging.getLogger(__name__)
 
-def response_message(response):
+def response2message(response):
     output = None
     if response.get('done', None):
         if response.get('done_reason', None) == 'stop':
@@ -90,7 +90,7 @@ class Ollama:
                                    messages=messages,
                                    format=response_format.model_json_schema(),
                                    options={'temperature': temperature})
-            message = response_message(response)
+            message = response2message(response)
             output = response_format.model_validate_json(message)
             output = output.model_dump()
         except Exception as e:
@@ -106,8 +106,16 @@ class Ollama:
 class OllamaModel(Ollama):
     def __init__(self, model: str = 'llama2:7b'):
         super().__init__()
-        self.model = model
         self.client = self.create_client()
+        self.model = model
+        if model not in self.models:
+            logger.warning(f'Model {model} not found in the Ollama server. '
+                           f'Trying to pull the model from the server...')
+            self.pull_model(model)
+            if model not in self.models:
+                logger.error(f'Failed to pull model {model} from the server. '
+                             f'Please check the model name and try again.')
+                exit(1)
 
     def predict_mh(self, name, description, version, temperature=0):
         variable = 'mental_health'
@@ -126,4 +134,43 @@ class OllamaModel(Ollama):
                                     client=self.client)
         output.update({pred_col: 1 if output.get(pred_col) == True else 0})
         output = {pred_col: output.get(pred_col)}
+        return output
+
+    def predict_ip(self, name, description, version, temperature=0):
+        variable = 'inpatient'
+        pred_col = 'pred_ip'
+        ip_prompt_name = f'{variable}_system_{str(version).zfill(2)}'
+        system_prompt = Prompt().load(prompt_name=ip_prompt_name)
+        user_prompt = process_prompt(f"""
+                        The organization {name} is described as: {description} 
+                        Does this organization provide {variable} healthcare services?
+                        """)
+        messages = create_messages(system_prompt=system_prompt, user_prompt=user_prompt)
+        output = self.send_messages(messages=messages,
+                                    model=self.model,
+                                    temperature=temperature,
+                                    response_format=InpatientServices,
+                                    client=self.client)
+        output.update({pred_col: 1 if output.get(pred_col) == True else 0})
+        output = {pred_col: output.get(pred_col)}
+        return output
+
+    def predict_op(self, name, description, version, temperature=0):
+        variable = 'outpatient'
+        pred_col = 'pred_op'
+        op_prompt_name = f'{variable}_system_{str(version).zfill(2)}'
+        system_prompt = Prompt().load(prompt_name=op_prompt_name)
+        user_prompt = process_prompt(f"""
+                        The organization {name} is described as: {description} 
+                        Does this organization provide {variable} healthcare services?
+                        """)
+        messages = create_messages(system_prompt=system_prompt, user_prompt=user_prompt)
+        output = self.send_messages(messages=messages,
+                                    model=self.model,
+                                    temperature=temperature,
+                                    response_format=OutpatientServices,
+                                    client=self.client)
+        key_list = [pred_col, 'verified_op']
+        output.update({key: 1 if output.get(key) == True else 0 for key in key_list})
+        output = {pred_col: output.get(pred_col), 'verified_op': output.get('verified_op')}
         return output

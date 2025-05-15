@@ -8,6 +8,7 @@ import markdown
 from pathlib import Path
 from textwrap import dedent
 from bs4 import BeautifulSoup
+from pydantic import BaseModel, Field
 
 logger = logging.getLogger(__name__)
 
@@ -18,6 +19,26 @@ def process_prompt(prompt: str):
     # Let's remove underscores because sometimes we use them in variables
     output = output.replace('_', ' ')
     return output
+
+class MentalHealth(BaseModel):
+    pred_mh: bool = Field(description='Mental_Health_Services: A business that provides '
+                                      'mental health or behavioral healthcare services for human patients.')
+    pred_mh_score: float = Field(description='Confidence that the business provides '
+                                             'mental health or behavioral healthcare services (0-1).')
+class InpatientServices(BaseModel):
+    pred_ip: bool = Field(description='Inpatient_Services: An organization that provides inpatient healthcare services.')
+    pred_ip_score: float = Field(description='Confidence that the organization provides inpatient healthcare services (0-1).')
+
+class OutpatientServices(BaseModel):
+    pred_op: bool = Field(description='Outpatient_Services: An organization that provides outpatient healthcare services.')
+    pred_op_score: float = Field(description='Confidence that the organization provides outpatient healthcare services (0-1).')
+    verified_op: bool = Field(description='Verifiable: The classification for outpatient healthcare services is verifiable.')
+
+def create_messages(system_prompt: str, user_prompt: str):
+    system_message = {'role': 'system', 'content': system_prompt}
+    user_message = {'role': 'user', 'content': user_prompt}
+    message_list = [system_message, user_message]
+    return message_list
 
 class Prompt:
     def __init__(self, prompt_dir: str = None, prompt_file_ext: str = '.md'):
