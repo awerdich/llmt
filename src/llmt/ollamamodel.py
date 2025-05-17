@@ -56,9 +56,9 @@ class Ollama:
             bool: True if successful, False otherwise
         """
         client = self.create_client()
+        output = False
         if not client:
             logger.error(f'Failed to create client connection')
-            return False
         try:
             # Start pulling the model and listen to progress
             with tqdm(unit='B', unit_scale=True, desc=model_name, dynamic_ncols=True) as pbar:
@@ -70,12 +70,12 @@ class Ollama:
                     elif 'status' in progress:
                         # Optionally print status updates
                         pbar.set_postfix_str(progress['status'])
-
             logger.info(f'Successfully pulled model: {model_name}')
-            return True
+            output = True
+            self.models = self.list_models()  # Update the model list after pulling the model
         except Exception as e:
             logger.error(f'Failed to pull model {model_name}: {e}')
-            return False
+        return output
 
     def send_messages(self,
                       messages: list,
@@ -118,59 +118,41 @@ class OllamaModel(Ollama):
                 exit(1)
 
     def predict_mh(self, name, description, version, temperature=0):
-        variable = 'mental_health'
-        pred_col = 'pred_mh'
-        mh_prompt_name = f'{variable}_system_{str(version).zfill(2)}'
-        system_prompt = Prompt().load(prompt_name=mh_prompt_name)
-        user_prompt = process_prompt(f"""
-                        The organization {name} is described as: {description} 
-                        Does this organization provide {variable} healthcare services?
-                        """)
-        messages = create_messages(system_prompt=system_prompt, user_prompt=user_prompt)
+        response_format = MentalHealth
+        pred_var = 'pred_mh'
+        messages = Prompt().create_mh_messages(name=name, description=description, version=version)
         output = self.send_messages(messages=messages,
                                     model=self.model,
                                     temperature=temperature,
-                                    response_format=MentalHealth,
+                                    response_format=response_format,
                                     client=self.client)
-        output.update({pred_col: 1 if output.get(pred_col) == True else 0})
-        output = {pred_col: output.get(pred_col)}
+        output.update({pred_var: 1 if output.get(pred_var) == True else 0})
+        output = {pred_var: output.get(pred_var)}
         return output
 
     def predict_ip(self, name, description, version, temperature=0):
-        variable = 'inpatient'
-        pred_col = 'pred_ip'
-        ip_prompt_name = f'{variable}_system_{str(version).zfill(2)}'
-        system_prompt = Prompt().load(prompt_name=ip_prompt_name)
-        user_prompt = process_prompt(f"""
-                        The organization {name} is described as: {description} 
-                        Does this organization provide {variable} healthcare services?
-                        """)
-        messages = create_messages(system_prompt=system_prompt, user_prompt=user_prompt)
+        response_format = InpatientServices
+        pred_var = 'pred_ip'
+        messages = Prompt().create_ip_messages(name=name, description=description, version=version)
         output = self.send_messages(messages=messages,
                                     model=self.model,
                                     temperature=temperature,
-                                    response_format=InpatientServices,
+                                    response_format=response_format,
                                     client=self.client)
-        output.update({pred_col: 1 if output.get(pred_col) == True else 0})
-        output = {pred_col: output.get(pred_col)}
+        output.update({pred_var: 1 if output.get(pred_var) == True else 0})
+        output = {pred_var: output.get(pred_var)}
         return output
 
     def predict_op(self, name, description, version, temperature=0):
-        variable = 'outpatient'
-        pred_col = 'pred_op'
-        op_prompt_name = f'{variable}_system_{str(version).zfill(2)}'
-        system_prompt = Prompt().load(prompt_name=op_prompt_name)
-        user_prompt = process_prompt(f"""
-                        The organization {name} is described as: {description} 
-                        Does this organization provide {variable} healthcare services?
-                        """)
-        messages = create_messages(system_prompt=system_prompt, user_prompt=user_prompt)
+        pred_var = 'pred_op'
+        verified_var = 'verified_op'
+        output_var_list = [pred_var, verified_var]
+        messages = Prompt().create_op_messages(name=name, description=description, version=version)
         output = self.send_messages(messages=messages,
                                     model=self.model,
                                     temperature=temperature,
                                     response_format=OutpatientServices,
                                     client=self.client)
-        key_list = [pred_col, 'verified_op']
-        output.update({key: 1 if output.get(key) == True else 0 for key in key_list})
-        output = {pred_col: output.get(pred_col), 'verified_op': output.get('verified_op')}
+        output.update({key: 1 if output.get(key) == True else 0 for key in output_var_list})
+        output = {var: output.get(var) for var in output_var_list if output.get(var) is not None}
         return output
