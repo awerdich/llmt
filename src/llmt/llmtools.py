@@ -16,8 +16,6 @@ def process_prompt(prompt: str):
     html = markdown.markdown(dedent(prompt))
     soup = BeautifulSoup(html, features='html.parser')
     output = soup.get_text()
-    # Let's remove underscores because sometimes we use them in variables
-    output = output.replace('_', ' ')
     return output
 
 class MentalHealth(BaseModel):
@@ -65,3 +63,33 @@ class Prompt:
         except Exception as e:
             logger.error(f'An error occurred: {e}')
         return output
+
+    def create_mh_messages(self, name: str, description: str, version: int):
+        prompt_name = f'mental_health_system_{str(version).zfill(2)}'
+        system_prompt = self.load(prompt_name=prompt_name)
+        user_prompt = process_prompt(f"""
+                        The organization {name} is described as: {description} 
+                        Does this organization provide mental health or behavioral healthcare services?
+                        """)
+        messages = create_messages(system_prompt=system_prompt, user_prompt=user_prompt)
+        return messages
+
+    def create_ip_messages(self, name: str, description: str, version: int):
+        prompt_name = f'inpatient_system_{str(version).zfill(2)}'
+        system_prompt = self.load(prompt_name=prompt_name)
+        user_prompt = process_prompt(f"""
+                        The organization {name} is described as: {description} 
+                        Does this organization provide inpatient healthcare services?
+                        """)
+        messages = create_messages(system_prompt=system_prompt, user_prompt=user_prompt)
+        return messages
+
+    def create_op_messages(self, name: str, description: str, version: int):
+        prompt_name = f'outpatient_system_{str(version).zfill(2)}'
+        system_prompt = self.load(prompt_name=prompt_name)
+        user_prompt = process_prompt(f"""
+                        The organization {name} is described as: {description} 
+                        Does this organization provide outpatient healthcare services?
+                        """)
+        messages = create_messages(system_prompt=system_prompt, user_prompt=user_prompt)
+        return messages
