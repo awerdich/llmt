@@ -6,7 +6,7 @@ import pandas as pd
 from pathlib import Path
 import logging
 
-from llmt.openai import OpenAIModel
+from llmt.openaimodel import OpenAIModel
 
 #%% Directories and settings
 n_runs = 10 # Repeat the experiment

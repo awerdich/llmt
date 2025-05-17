@@ -1,6 +1,6 @@
 [project]
 name = "llmt"
-version = "0.0.2"
+version = "0.0.3"
 description = "Tools to get started with LLMs and Ollama"
 readme = "README.md"
 authors = [
