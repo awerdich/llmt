@@ -9,6 +9,7 @@ authors = [
 requires-python = ">=3.12.3"
 dependencies = [
     "datasets>=3.5.0",
+    "fastparquet>=2024.11.0",
     "gnews>=0.4.1",
     "markdown>=3.8",
     "nodejs>=0.1.1",
