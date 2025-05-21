@@ -33,17 +33,19 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 #%% OpenAI experiment
-model_name_list = ['llama2:7b', 'llama2:13b', 'llama2:70b']
+model_name_list = ['llama2:7b', 'llama2:13b', 'llama2:70b',
+                   'llama3:8b', 'llama3:70b', 'deepseek-v3:671b']
 for m, model_name in enumerate(model_name_list):
-    print(f'Model {m + 1} / {len(model_name_list)}: {model_name}')
     model_name_str = model_name.replace(':', '_')
-    model = OllamaModel(model=model_name)
     temperature = 0
     start_time = time.perf_counter()
     model_file_name = f'{experiment_name}_{model_name_str}.parquet'
     model_file = os.path.join(output_dir, model_file_name)
+    print(f'Checking model {m + 1} / {len(model_name_list)}: {model_name}')
     if not Path(model_file).exists():
         results_df_list = []
+        model = OllamaModel(model=model_name)
+        print(f'Running model {m + 1} / {len(model_name_list)}: {model_name}')
         for c, company_id in enumerate(company_id_list):
             if (c + 1) % 20 == 0:
                 print(f'Sending sample {c + 1} / {len(company_id_list)} for model {model_name_str}...')
