@@ -28,7 +28,7 @@ services:
     build: 
       context: .
       network: host
-      dockerfile: Dockerfile
+      dockerfile: dockerfiles/Dockerfile_app
     depends_on:
       - ollama
     ipc: host
