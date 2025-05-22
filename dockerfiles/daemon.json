@@ -1,0 +1,4 @@
+{
+    "data-root": "/dockerroot",
+    "exec-opts": ["native.cgroupdriver=cgroupfs"]
+}
