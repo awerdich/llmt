@@ -1,0 +1,70 @@
+services: 
+  # The ollama container from the original image
+  ollama:
+    image: docker.io/ollama/ollama:latest
+    container_name: ollama
+    restart: always
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    environment:
+      - OLLAMA_KEEP_ALIVE=24h
+      - OLLAMA_HOST=0.0.0.0
+      - OLLAMA_DEBUG=1
+    volumes:
+      - ollama_data:/root/.ollama   
+    networks:
+      - ollama_network
+    ports:
+      - "11434:11434"
+# The development container
+  app:
+    image: llmt:latest
+    container_name: llmt
+    build: 
+      context: .
+      network: host
+      dockerfile: dockerfiles/Dockerfile_app
+    depends_on:
+      - ollama
+    ipc: host
+    environment:
+      - HOME=/app
+      - DATA=/app/data
+    env_file:
+      - ./.env
+    ports:
+      - "7485:8888"
+    volumes:
+      - .:/app
+      #- /results/aaw10/data:/app/data
+      - /home/andreas/data:/app/data
+    networks:
+      - ollama_network
+    develop:
+      # Create a `watch` configuration to update the app
+      # https://docs.docker.com/compose/file-watch/#compose-watch-versus-bind-mounts
+      watch:
+        # Sync the working directory with the `/app` directory in the container
+        - action: sync
+          path: .
+          target: /app
+          # Exclude the project virtual environment — it could be for a
+          # different platform in the container
+          ignore:
+            - .venv/
+
+        # Rebuild the image if dependencies change by checking uv.lock
+        - action: rebuild
+          path: ./uv.lock
+
+volumes:
+  ollama_data:
+    external: false
+networks:
+  ollama_network:
+    driver: bridge
