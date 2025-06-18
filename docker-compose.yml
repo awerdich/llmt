@@ -38,7 +38,7 @@ services:
     env_file:
       - ./.env
     ports:
-      - "7485:8888"
+      - "8888:8888"
     volumes:
       - .:/app
       #- /results/aaw10/data:/app/data

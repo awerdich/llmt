@@ -1,4 +1,5 @@
-services:
+services: 
+  # The ollama container from the original image
   ollama:
     image: docker.io/ollama/ollama:latest
     container_name: ollama
@@ -8,36 +9,42 @@ services:
         reservations:
           devices:
             - driver: nvidia
-              count: 1
+              count: all
               capabilities: [gpu]
     environment:
       - OLLAMA_KEEP_ALIVE=24h
       - OLLAMA_HOST=0.0.0.0
+      - OLLAMA_DEBUG=1
+    volumes:
+      - ollama_data:/root/.ollama   
+    networks:
+      - ollama_network
     ports:
       - "11434:11434"
-    volumes:
-      - ollama_data:/root/.ollama      
+# The development container
   app:
-    image: llmtools:latest
-    container_name: llmtools
+    image: llmt:latest
+    container_name: llmt
     build: 
       context: .
       network: host
-      dockerfile: Dockerfile
-    ipc: host
-    environment:
-    - NVIDIA_VISIBLE_DEVICES=all
-    - HOME=/app
-    env_file:
-      - ./.env
+      dockerfile: dockerfiles/Dockerfile_app
     depends_on:
       - ollama
+    ipc: host
+    environment:
+      - HOME=/app
+      - DATA=/app/data
+    env_file:
+      - ./.env
     ports:
-      - "8888:8888"
+      - "7485:8888"
     volumes:
       - .:/app
-      - app_data:/app/data
-      - /home/andreas/data:/app/home_data
+      #- /results/aaw10/data:/app/data
+      - /home/andreas/data:/app/data
+    networks:
+      - ollama_network
     develop:
       # Create a `watch` configuration to update the app
       # https://docs.docker.com/compose/file-watch/#compose-watch-versus-bind-mounts
@@ -56,7 +63,8 @@ services:
           path: ./uv.lock
 
 volumes:
-  app_data:
-    external: false
   ollama_data:
     external: false
+networks:
+  ollama_network:
+    driver: bridge
