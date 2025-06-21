@@ -10,6 +10,10 @@ def binary_performance(y_true: List[int], y_pred: List[int], decimals: int=4) ->
     tn, fp, fn, tp = confusion_matrix(y_true=y_true, y_pred=y_pred).ravel()
     precision = tp / (tp + fp)
     recall = tp / (tp + fn)
+    if (precision + recall) > 0:
+        f_score = round(float(2 * (precision * recall) / (precision + recall)), decimals)
+    else:
+        f_score = 0
     performance_dict = {'p': y_true.count(1), # Number of positive samples in true data
                         'n': y_true.count(0), # Number of negative samples in true data
                         'tp': int(tp),
@@ -20,7 +24,7 @@ def binary_performance(y_true: List[int], y_pred: List[int], decimals: int=4) ->
                         'precision': round(float(precision), decimals), # Fraction of correctly identified positive samples
                         'min_precision': round(float((tp + fn) / len(y_true)), decimals), # Assume we return all predictions as positive
                         'specificity': round(float(tn / (tn + fp)), decimals), # True negative rate
-                        'f_score': round(float(2 * (precision * recall) / (precision + recall)), decimals)}
+                        'f_score': f_score}
     return performance_dict
 
 class Performance:
@@ -37,7 +41,7 @@ class Performance:
         for col in input_col_list:
             df = df.loc[df[col].isin([0, 1])]
             df[col] = (df[col].astype(int))
-        if len(df) < len(self.data): logger.warning(f'{len(self.data) - len(df)} rows removed from data!')
+        # if len(df) < len(self.data): logger.warning(f'{len(self.data) - len(df)} rows removed from data!')
         # Add the binary columns
         df[output_col_name] = df[input_col_list].sum(axis=1)
         df[output_col_name] = df[output_col_name].apply(lambda val: 1 if val == len(input_col_list) else 0)
