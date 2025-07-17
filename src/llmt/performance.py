@@ -47,6 +47,17 @@ class Performance:
         df[output_col_name] = df[output_col_name].apply(lambda val: 1 if val == len(input_col_list) else 0)
         return df
 
+    def combine_columns(self, true_col_list, pred_col_list):
+        """ Combine binary columns like [true_mh, true_ip] """
+        true_combined = self.combine_binary_columns(input_col_list=true_col_list). \
+            drop(true_col_list, axis=1)
+        pred_combined = self.combine_binary_columns(input_col_list=pred_col_list). \
+            drop(pred_col_list, axis=1)
+        df = self.data. \
+            merge(true_combined, on='id', how='left'). \
+            merge(pred_combined, on='id', how='left')
+        return df
+
     def binary_performance(self, true_col: str, pred_col: str) -> dict:
         df = self.data[[true_col, pred_col]].\
             dropna(axis=0, how='any')
