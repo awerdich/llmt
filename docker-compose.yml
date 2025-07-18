@@ -23,7 +23,7 @@ services:
       - "11434:11434"
 # The development container
   app:
-    image: llmt:latest
+    image: llmt:01
     container_name: llmt
     build: 
       context: .
