@@ -12,7 +12,9 @@ from llmt.performance import Performance
 
 #%% Paths and files
 data_dir = os.path.join(os.environ.get('DATA'), 'hcp')
-data_file_name = 'hcp-train-250701.parquet'
+# data_file_name = 'hcp-train-250701.parquet'
+data_file_name = 'hcp-train-250413.parquet'
+output_base_name = 'hcp-train-250413'
 df = pd.read_parquet(os.path.join(data_dir, data_file_name))
 company_id_list = list(df['id'].unique())
 print(f'Number of unique companies: {len(company_id_list)}')
@@ -28,7 +30,6 @@ true_col_list = list(col_dict.keys())
 pred_col_list = [col_dict.get(k) for k in true_col_list]
 deployment_name_list = ['gpt-4o-1120', 'gpt-4.1']
 version_dict_list = [{'mh': 3, 'ip': 1, 'op': 1}, {'mh': 4, 'ip': 2, 'op': 2}]
-output_base_name = 'hcp-train-250701'
 
 #%% Log file
 log_file = os.path.join(data_dir, f'{output_base_name}.log')
@@ -136,9 +137,10 @@ for d, deployment_name in enumerate(deployment_name_list):
     for p, prompt_version_dict in enumerate(version_dict_list):
         print(f'Prompt {p + 1}/{len(version_dict_list)}: {prompt_version_dict}')
         results_samples_list = []
-        for c, company_id in enumerate(company_id_list[:6]):
-            if (c + 1) % 2 == 0:
-                print(f'Sample {c + 1}/{len(company_id_list)}')
+        for c, company_id in enumerate(company_id_list):
+            if (c + 1) % 50 == 0:
+                dt = (time.perf_counter() - start_time) / 60
+                print(f'Sample {c + 1}/{len(company_id_list)}: time elapsed {dt:.2f} min')
             company_df = df.loc[df['id'] == company_id]
             company_name = company_df.get('name').values[0]
             company_desc = company_df.get('description').values[0]
