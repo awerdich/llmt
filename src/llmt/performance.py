@@ -1,6 +1,8 @@
 """ Performance metrics """
 from typing import List
+import copy
 import pandas as pd
+from pandas.core.frame import DataFrame
 from sklearn.metrics import confusion_matrix
 import logging
 
@@ -47,16 +49,23 @@ class Performance:
         df[output_col_name] = df[output_col_name].apply(lambda val: 1 if val == len(input_col_list) else 0)
         return df
 
-    def combine_columns(self, true_col_list, pred_col_list):
+    def combine_columns(self, true_col_list: list, pred_col_list: list) -> DataFrame:
         """ Combine binary columns like [true_mh, true_ip] """
-        true_combined = self.combine_binary_columns(input_col_list=true_col_list). \
-            drop(true_col_list, axis=1)
-        pred_combined = self.combine_binary_columns(input_col_list=pred_col_list). \
-            drop(pred_col_list, axis=1)
-        df = self.data. \
-            merge(true_combined, on='id', how='left'). \
-            merge(pred_combined, on='id', how='left')
-        return df
+        output = copy.deepcopy(self.data)
+        success = False
+        if len(true_col_list) > 0 and set(true_col_list).issubset(self.data.columns):
+            true_combined = self.combine_binary_columns(input_col_list=true_col_list). \
+                drop(true_col_list, axis=1)
+            output = output.merge(true_combined, on='id', how='left')
+            success = True
+        if len(pred_col_list) > 0 and set(pred_col_list).issubset(self.data.columns):
+            pred_combined = self.combine_binary_columns(input_col_list=pred_col_list). \
+                drop(pred_col_list, axis=1)
+            output = output.merge(pred_combined, on='id', how='left')
+            success = True
+        if not success:
+            raise ValueError('No valid columns found for combining!')
+        return output
 
     def binary_performance(self, true_col: str, pred_col: str) -> dict:
         df = self.data[[true_col, pred_col]].\
