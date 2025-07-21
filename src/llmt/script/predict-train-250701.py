@@ -12,9 +12,10 @@ from llmt.performance import Performance
 
 #%% Paths and files
 data_dir = os.path.join(os.environ.get('DATA'), 'hcp')
-# data_file_name = 'hcp-train-250701.parquet'
-data_file_name = 'hcp-train-250413.parquet'
-output_base_name = 'hcp-train-250413'
+data_file_name = 'hcp-train-250701.parquet'
+output_base_name = 'hcp-train-250701'
+# data_file_name = 'hcp-train-250413.parquet'
+# output_base_name = 'hcp-train-250413'
 df = pd.read_parquet(os.path.join(data_dir, data_file_name))
 company_id_list = list(df['id'].unique())
 print(f'Number of unique companies: {len(company_id_list)}')
@@ -71,28 +72,37 @@ def predict_classes(model, name: str, description: str, temperature: float=0, ve
 # Function to send a sample to the model
 def send_sample(cdf: DataFrame, deployment: str, version_dict: dict) -> DataFrame:
     assert len(cdf) == 1, 'The input data frame is one sample and should have just ONE ROW!'
-    company_n = cdf.get('name').values[0]
-    company_d = cdf.get('description').values[0]
-    model = OpenAIModel(model=deployment)
-    response_list = predict_classes(model=model,
-                                    name=company_n,
-                                    description=company_d,
-                                    temperature=0,
-                                    version_dict=version_dict)
-    # Add the responses to the company_df dataframe
-    for response in response_list:
-        cdf = cdf.assign(**response)
-    # Combine the binary columns
-    cdf = Performance(data=cdf). \
-        combine_columns(true_col_list=['mental_health', 'inpatient'],
-                        pred_col_list=['pred_mh', 'pred_ip']). \
-        rename(columns={'pred_mh_pred_ip': 'pred_mh_ip'})
+    ser = cdf.dropna(axis=1).iloc[0]
+    company_n = ser.get('name')
+    company_d = ser.get('description')
+    if None not in [company_n, company_d]:
+        try:
+            model = OpenAIModel(model=deployment)
+            response_list = predict_classes(model=model,
+                                            name=company_n,
+                                            description=company_d,
+                                            temperature=0,
+                                            version_dict=version_dict)
+            # Add the responses to the company_df dataframe
+            for response in response_list:
+                cdf = cdf.assign(**response)
+        except Exception as e:
+            logger.error(f'ERROR sending sample to model: {e}')
+        else:
+            # Combine the binary columns
+            cdf = Performance(data=cdf). \
+                combine_columns(true_col_list=['mental_health', 'inpatient'],
+                                pred_col_list=['pred_mh', 'pred_ip']). \
+                rename(columns={'pred_mh_pred_ip': 'pred_mh_ip'})
 
-    cdf = Performance(data=cdf). \
-        combine_columns(true_col_list=['mental_health', 'outpatient'],
-                        pred_col_list=['pred_mh', 'pred_op']). \
-        rename(columns={'pred_mh_pred_op': 'pred_mh_op'})
-
+            cdf = Performance(data=cdf). \
+                combine_columns(true_col_list=['mental_health', 'outpatient'],
+                                pred_col_list=['pred_mh', 'pred_op']). \
+                rename(columns={'pred_mh_pred_op': 'pred_mh_op'})
+    else:
+        logger.warning(f'Sample {ser.get("id")} has missing values for name or description. Skipping...')
+        cdf = cdf.assign(pred_mh=np.nan, pred_ip=np.nan, pred_op=np.nan,
+                         verified_op=np.nan, pred_mh_ip=np.nan, pred_mh_op=np.nan)
     return cdf
 
 def performance_table(data: DataFrame, true_pred_cols: dict = None) -> DataFrame:
@@ -142,8 +152,6 @@ for d, deployment_name in enumerate(deployment_name_list):
                 dt = (time.perf_counter() - start_time) / 60
                 print(f'Sample {c + 1}/{len(company_id_list)}: time elapsed {dt:.2f} min')
             company_df = df.loc[df['id'] == company_id]
-            company_name = company_df.get('name').values[0]
-            company_desc = company_df.get('description').values[0]
             result_df = send_sample(cdf=company_df,
                                     deployment=deployment_name,
                                     version_dict=prompt_version_dict)
