@@ -1,0 +1,21 @@
+services: 
+# The development container
+  app:
+    image: llmt:01
+    container_name: llmt
+    build: 
+      context: .
+      network: host
+      dockerfile: dockerfiles/Dockerfile_app
+    ipc: host
+    environment:
+      - HOME=/app
+      - DATA=/app/data
+    env_file:
+      - ./.env
+    ports:
+      - "8888:8888"
+    volumes:
+      - .:/app
+      #- /results/aaw10/data:/app/data
+      - /home/andreas/data:/app/data
