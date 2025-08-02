@@ -1,4 +1,4 @@
-""" Training set predictions for HCP training data 07/01/2025 """
+""" Training set predictions for HCP training data 07/29/2025 """
 import os
 import copy
 import numpy as np
@@ -11,13 +11,12 @@ from llmt.openaimodel import OpenAIModel
 from llmt.performance import Performance
 
 #%% Paths and files
-data_dir = os.path.join(os.environ.get('DATA'), 'hcp')
-data_file_name = 'hcp-train-250701.parquet'
-output_base_name = 'hcp-train-250701'
-# data_file_name = 'hcp-train-250413.parquet'
-# output_base_name = 'hcp-train-250413'
+data_dir = os.path.join(os.environ.get('DATA'), 'hcp', 'hcp_update_250729')
+data_file_name = 'outpatient_testing_set_5-29-2025_2.parquet'
+output_base_name = 'outpatient_testing_set_5-29-2025_2'
 df = pd.read_parquet(os.path.join(data_dir, data_file_name))
 company_id_list = list(df['id'].unique())
+print(f'Data file: {data_file_name}')
 print(f'Number of unique companies: {len(company_id_list)}')
 
 #%% Variables and parameters
